@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>macOS HTML Edition</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+        }
+
+        #touch-cursor {
+            position: fixed;
+            width: 24px;
+            height: 24px;
+            pointer-events: none;
+            z-index: 999999;
+            transform: translate(-2px, -2px);
+            transition: transform 0.05s linear;
+            display: block;
+        }
+
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff007f;
+            --dock-scale: 1;
+            --glass-blur: 20px;
+        }
+
+        body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #0b0c10;
+        }
+
+        /* 1. СТАНДАРТ ТЕМА (Тёмный Неон) */
+        body.theme-standard {
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?fm=jpg&q=80&w=1920');
+        }
+        body.theme-standard .menubar {
+            background: rgba(10, 10, 18, 0.75);
+            backdrop-filter: blur(var(--glass-blur));
+            color: #00f3ff;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.25);
+        }
+        body.theme-standard .window {
+            background: rgba(16, 16, 28, 0.85);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7), 0 0 15px rgba(0, 243, 255, 0.2);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            color: #fff;
+        }
+        body.theme-standard .window-title-pill {
+            color: #00f3ff;
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid rgba(0, 243, 255, 0.25);
+        }
+        body.theme-standard .buttons-pill {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        body.theme-standard .dock {
+            background: rgba(15, 15, 25, 0.65);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 20px;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+        }
+        body.theme-standard .dock-item {
+            border-radius: 12px;
+            background: rgba(10, 10, 20, 0.7);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        /* 2. СВЕТЛАЯ ТЕМА (Light Glass) */
+        body.theme-light {
+            background-image: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.2)), url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?fm=jpg&q=80&w=1920');
+        }
+        body.theme-light .menubar {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(var(--glass-blur));
+            color: #1d1d1f;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        body.theme-light .window {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 20px rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            color: #1d1d1f;
+        }
+        body.theme-light .window-title-pill {
+            color: #1d1d1f;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        body.theme-light .buttons-pill {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        body.theme-light .dock {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(var(--glass-blur));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        body.theme-light .dock-item {
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #0078d7;
+        }
+        body.theme-light .settings-sidebar,
+        body.theme-light .files-sidebar,
+        body.theme-light .store-sidebar {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        body.theme-light .theme-card,
+        body.theme-light .app-card {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* 3. РЕТРО */
+        body.theme-retro { background-image: url('https://e0.pxfuel.com/wallpapers/183/800/desktop-wallpaper-mac-os-x-aqua-mac-os-x.jpg'); }
+        body.theme-retro .menubar { background: linear-gradient(to bottom, #e6e6e6, #bebebe); color: #000; border-bottom: 1px solid #777; font-weight: bold; }
+        body.theme-retro .window { background: #ececec; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #999; color: #000; }
+        body.theme-retro .window-title-pill { color: #222; background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.15); }
+        body.theme-retro .buttons-pill { background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.15); }
+        body.theme-retro .dock { background: linear-gradient(to bottom, rgba(230,230,230,0.9), rgba(180,180,180,0.95)); border-radius: 12px; border: 2px solid #fff; }
+        body.theme-retro .dock-item { border-radius: 50%; background: radial-gradient(circle at 30% 30%, #4ba3e3, #0055a5); border: 1px solid #003366; color: #fff; }
+
+        /* 4. METRO */
+        body.theme-metro { background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?fm=jpg&q=80&w=1920'); }
+        body.theme-metro .menubar { background: #000; color: #fff; border-bottom: 2px solid #0078d7; }
+        body.theme-metro .window { background: #1f1f1f; border-radius: 0; border: 2px solid #0078d7; color: #fff; }
+        body.theme-metro .window-title-pill { color: #fff; background: #0078d7; border-radius: 0; }
+        body.theme-metro .buttons-pill { background: #2a2a2a; border-radius: 0; }
+        body.theme-metro .dock { background: #111; border-radius: 0; border: 1px solid #333; }
+        body.theme-metro .dock-item { border-radius: 0; background: #0078d7; border: none; color: #fff; }
+
+        /* Панель меню */
+        .menubar {
+            height: 28px; display: flex; justify-content: space-between; align-items: center;
+            padding: 0 12px; font-size: 12px; position: fixed; top: 0; left: 0; right: 0; z-index: 99990;
+        }
+        .menubar-left, .menubar-right { display: flex; align-items: center; gap: 12px; }
+
+        .desktop { height: 100vh; padding-top: 36px; position: relative; width: 100vw; overflow: hidden; }
+
+        /* КОНТЕКСТНОЕ МЕНЮ */
+        #context-menu {
+            position: fixed;
+            display: none;
+            width: 180px;
+            background: rgba(20, 20, 30, 0.8);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            padding: 6px;
+            z-index: 999999;
+            color: #fff;
+        }
+        body.theme-light #context-menu {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #1d1d1f;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .context-menu-item {
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.15s;
+        }
+        .context-menu-item:hover {
+            background: #0078d7;
+            color: #fff;
+        }
+        .context-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.15);
+            margin: 4px 0;
+        }
+        body.theme-light .context-divider {
+            background: rgba(0,0,0,0.08);
+        }
+
+        /* Ярлык Диска */
+        .desktop-shortcut {
+            position: absolute;
+            top: 40px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 74px;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .desktop-shortcut:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .desktop-shortcut-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 120, 215, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 243, 255, 0.4);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #00f3ff;
+            margin-bottom: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        body.theme-light .desktop-shortcut-icon {
+            background: rgba(0, 120, 215, 0.1);
+            border-color: rgba(0, 120, 215, 0.3);
+            color: #0078d7;
+        }
+        .desktop-shortcut-title {
+            font-size: 11px;
+            color: inherit;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            text-align: center;
+            word-break: break-word;
+        }
+
+        /* Окна */
+        .window {
+            position: absolute;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-sizing: border-box;
+            max-width: 98vw;
+            max-height: 85vh;
+            animation: windowOpen 0.2s ease-out forwards;
+            perspective: 1000px;
+        }
+
+        .window.maximized {
+            width: 100vw !important;
+            height: calc(100vh - 28px) !important;
+            top: 28px !important;
+            left: 0 !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
+            border-radius: 0 !important;
+        }
+
+        @keyframes windowOpen {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .window-header {
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            cursor: move;
+            position: relative;
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        .buttons-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: transform 0.1s ease-out;
+            will-change: transform;
+            z-index: 2;
+        }
+
+        .btn {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-close { background: #ff5f56; }
+        .btn-minimize { background: #ffbd2e; }
+        .btn-maximize { background: #27c93f; }
+
+        .window-title-pill {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
+            transition: transform 0.1s ease-out;
+            will-change: transform;
+            max-width: 50%;
+            text-align: center;
+        }
+
+        .window-body { flex: 1; padding: 12px; overflow: auto; display: flex; flex-direction: column; font-size: 13px; }
+
+        /* НАСТРОЙКИ */
+        .settings-layout { display: flex; height: 100%; gap: 10px; }
+        .settings-sidebar {
+            width: 120px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .settings-tab {
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.7;
+            transition: 0.2s;
+        }
+        .settings-tab:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+        .settings-tab.active { opacity: 1; background: rgba(0, 120, 215, 0.3); font-weight: bold; }
+        .settings-content { flex: 1; padding: 4px; overflow-y: auto; }
+        .settings-section { display: none; }
+        .settings-section.active { display: block; }
+
+        /* APP STORE & MUSIC СТИЛИ */
+        .store-layout, .music-layout { display: flex; height: 100%; gap: 10px; }
+        .store-sidebar, .music-sidebar { width: 120px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 6px; font-size: 11px; display: flex; flex-direction: column; gap: 4px; }
+        .app-card { border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); }
+        .btn-install { padding: 4px 10px; background: #0078d7; color: #fff; border: none; border-radius: 12px; cursor: pointer; font-size: 11px; }
+
+        /* LIQUID GLASS ТУМБЛЕРЫ */
+        .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; }
+        
+        .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top:0; left:0; right:0; bottom:0;
+            background: rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.3), 0 4px 10px rgba(0,0,0,0.1);
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 22px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(200,200,200,0.6));
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background: rgba(0, 120, 215, 0.4);
+            border-color: rgba(0, 120, 215, 0.6);
+            box-shadow: inset 0 1px 4px rgba(0,120,215,0.5), 0 0 12px rgba(0, 120, 215, 0.4);
+        }
+        input:checked + .slider:before {
+            transform: translateX(22px);
+            background: linear-gradient(135deg, #00f3ff, #0078d7);
+            box-shadow: 0 0 8px #00f3ff;
+        }
+
+        /* ФАЙЛОВЫЙ МЕНЕДЖЕР */
+        .files-layout { display: flex; height: 100%; gap: 10px; }
+        .files-sidebar { width: 110px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 6px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; }
+        .files-sidebar-item { display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 4px; cursor: pointer; }
+        .files-sidebar-item:hover { background: rgba(255,255,255,0.1); }
+        .files-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; align-content: start; }
+        .file-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 10px; text-align: center; }
+        .file-item:hover { background: rgba(0,0,0,0.08); }
+
+        /* Dock */
+        .dock-container {
+            position: fixed; bottom: 8px; left: 0; width: 100%; display: flex; justify-content: center; z-index: 99990; pointer-events: none;
+        }
+        .dock { pointer-events: auto; padding: 6px 10px; display: flex; gap: 8px; max-width: 98vw; overflow-x: auto; transform: scale(var(--dock-scale)); }
+        .dock-item { width: 42px; height: 42px; min-width: 42px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: transform 0.2s; }
+        .dock-item:active { transform: scale(0.9); }
+
+        .theme-card { border: 1px solid rgba(150,150,150,0.3); border-radius: 8px; padding: 10px; margin-bottom: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); }
+        .code-editor { font-family: monospace; background: #1e1e1e; color: #d4d4d4; padding: 10px; border-radius: 6px; flex: 1; outline: none; border: 1px solid #333; font-size: 12px; }
+        .browser-bar { display: flex; gap: 6px; margin-bottom: 8px; }
+        .browser-input { flex: 1; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2); color: inherit; padding: 4px 10px; border-radius: 4px; outline: none; font-size: 12px; }
+
+        .iphone-frame { width: 200px; height: 380px; background: #000; border-radius: 30px; border: 4px solid #333; margin: 0 auto; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 15px rgba(0,0,0,0.8); overflow: hidden; }
+        .iphone-island { width: 60px; height: 14px; background: #000; border-radius: 10px; position: absolute; top: 6px; left: calc(50% - 30px); z-index: 10; }
+        .iphone-screen { flex: 1; background: url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?fm=jpg&q=80&w=400') center/cover; padding: 30px 10px 10px 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-content: start; }
+        
+        .android-frame { width: 210px; height: 390px; background: #121212; border-radius: 20px; border: 3px solid #444; margin: 0 auto; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 15px rgba(0,255,100,0.2); overflow: hidden; }
+        .android-header-bar { height: 18px; background: rgba(0,0,0,0.5); display: flex; justify-content: space-between; align-items: center; padding: 0 8px; font-size: 9px; color: #fff; }
+        .android-screen { flex: 1; background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?fm=jpg&q=80&w=400') center/cover; padding: 15px 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-content: start; }
+        .android-nav-bar { height: 24px; background: #000; display: flex; justify-content: space-around; align-items: center; color: #ccc; font-size: 11px; }
+
+        .app-icon { width: 42px; height: 42px; background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: #fff; }
+
+        @media (max-width: 600px) {
+            .window { width: 92vw !important; left: 4vw !important; top: 38px !important; }
+            .dock-item { width: 36px; height: 36px; min-width: 36px; }
+            .dock { gap: 4px; padding: 4px 6px; }
+            .settings-sidebar { width: 90px; }
+            .settings-tab { font-size: 9px; padding: 6px 4px; }
+        }
+    </style>
+</head>
+<body class="theme-standard">
+
+    <svg id="touch-cursor" viewBox="0 0 24 24" fill="#00f3ff" stroke="#ff007f" stroke-width="1.5">
+        <path d="M3 3l7 18 3-7 7-3L3 3z"/>
+    </svg>
+
+    <!-- ВСПЛЫВАЮЩЕЕ КОНТЕКСТНОЕ МЕНЮ -->
+    <div id="context-menu">
+        <div class="context-menu-item" onclick="openApp('win-files')"><i data-lucide="folder" style="width:14px;"></i> Открыть Файлы</div>
+        <div class="context-menu-item" onclick="openApp('win-store')"><i data-lucide="shopping-bag" style="width:14px;"></i> App Store</div>
+        <div class="context-menu-item" onclick="openApp('win-themes')"><i data-lucide="palette" style="width:14px;"></i> Сменить тему</div>
+        <div class="context-menu-item" onclick="openApp('win-settings')"><i data-lucide="settings" style="width:14px;"></i> Настройки</div>
+        <div class="context-divider"></div>
+        <div class="context-menu-item" onclick="closeAllApps()"><i data-lucide="minus-circle" style="width:14px;"></i> Свернуть всё</div>
+        <div class="context-menu-item" onclick="location.reload()"><i data-lucide="rotate-cw" style="width:14px;"></i> Перезагрузить</div>
+    </div>
+
+    <div class="menubar">
+        <div class="menubar-left">
+            <i data-lucide="apple" style="width:14px; height:14px;"></i>
+            <span style="font-weight: 700;">Finder</span>
+            <span>Файл</span>
+            <span>Правка</span>
+        </div>
+        <div class="menubar-right">
+            <span id="clock">12:00</span>
+        </div>
+    </div>
+
+    <div class="desktop">
+
+        <!-- ЯРЛЫК ДИСКА C: -->
+        <div class="desktop-shortcut" onclick="openApp('win-files')" ondblclick="openApp('win-files')">
+            <div class="desktop-shortcut-icon">
+                <i data-lucide="hard-drive"></i>
+            </div>
+            <div class="desktop-shortcut-title">Диск (C:)</div>
+        </div>
+
+        <!-- 1. Приветствие -->
+        <div class="window" id="win-welcome" style="width: 350px; height: 210px; top: 60px; left: calc(50% - 175px); display: flex;">
+            <div class="window-header">
+                <div class="buttons-pill">
+                    <div class="btn btn-close" onclick="closeApp('win-welcome')"></div>
+                    <div class="btn btn-minimize" onclick="closeApp('win-welcome')"></div>
+                    <div class="btn btn-maximize" onclick="toggleMaximize('win-welcome')"></div>
+                </div>
+                <div class="window-title-pill">macOS HTML Edition</div>
+            </div>
+            <div class="window-body" style="text-align: center; gap: 8px;">
+                <h3> Обновление системы</h3>
+                <p style="font-size: 11px; opacity: 0.8;">Добавлено контекстное меню, App Store и Плеер Музыки!</p>
+                <button onclick="changeTheme('theme-light')" style="padding: 6px 12px; background: #0078d7; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 5px;">Включить Светлую Тему</button>
+            </div>
+        </div>
+
+        <!-- 2. Приложение Файлы -->
+        <div class="window" id="win-files" style="width: 420px; height: 300px; top: 70px; left: 100px;">
+            <div class="window-header">
+                <div class="buttons-pill">
+                    <div class="btn btn-close" onclick="closeApp('win-files')"></div>
+                    <div class="btn btn-minimize" onclick="closeApp('win-files')"></div>
+                    <div class="btn btn-maximize" onclick="toggleMaximize('win-files')"></div>
+                </div>
+                <div class="window-title-pill">Файлы — Диск (C:)</div>
+            </div>
+            <div class="window-body">
+                <div class="files-layout">
+                    <div class="files-sidebar">
+                        <div class="files-sidebar-item"><i data-lucide="hard-drive" style="width:12px;"></i> Диск (C:)</div>
+                        <div class="files-sidebar-item"><i data-lucide="desktop" style="width:12px;"></i> Рабочий стол</div>
+                        <div class="files-sidebar-item"><i data-lucide="file" style="width:12px;"></i> Документы</div>
+                        <div class="files-sidebar-item"><i data-lucide="download" style="width:12px;"></i> Загрузки</div>
+                    </div>
+                    <div class="files-grid">
+                        <div class="file-item"><i data-lucide="folder" style="width:28px; height:28px; color:#00f3ff;"></i>System</div>
+                        <div class="file-item"><i data-lucide="folder" style="width:28px; height:28px; color:#00f3ff;"></i>Users</div>
+                        <div class="file-item"><i data-lucide="folder" style="width:28px; height:28px; color:#00f3ff;"></i>Applications</div>
+                        <div class="file-item"><i data-lucide="file-code" style="width:28px; height:28px; color:#ff007f;"></i>boot.ini</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Настройки -->
+        <div class="window" id="win-settings" style="width: 440px; height: 320px; top: 80px; left: 40px;">
+            <div class="window-header">
+                <div class="buttons-pill">
+                    <div class="btn btn-close" onclick="closeApp('win-settings')"></div>
+                    <div class="btn btn-minimize" onclick="closeApp('win-settings')"></div>
+                    <div class="btn btn-maximize" onclick="toggleMaximize('win-settings')"></div>
+                </div>
+                <div class="window-title-pill">Системные Настройки</div>
+            </div>
+            <div class="window-body">
+                <div class="settings-layout">
+                    <div class="settings-sidebar">
+                        <div class="settings-tab active" onclick="switchSettingsSection('appearance', this)"><i data-lucide="palette" style="width:14px;"></i> Оформление</div>
+                        <div class="settings-tab" onclick="switchSettingsSection('wifi', this)"><i data-lucide="wifi" style="width:14px;"></i> Wi-Fi</div>
+                        <div class="settings-tab" onclick="switchSettingsSection('sound', this)"><i data-lucide="volume-2" style="width:14px;"></i> Звук</div>
+                        <div class="settings-tab" onclick="switchSettingsSection('apps', this)"><i data-lucide="grid" style="width:14px;"></i> Приложения</div>
+                    </div>
+                    <div class="settings-content">
+                        
+                        <!-- Оформление -->
+                        <div class="settings-section active" id="sec-appearance">
+                            <h4 style="margin-bottom:10px;">Тема оформления</h4>
+                            <div class="setting-item">
+                                <span>Режим Светлой темы:</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="light-theme-toggle" onchange="changeTheme(this.checked ? 'theme-light' : 'theme-standard')">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <span>Курсор слежения:</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="cursor-toggle" checked onchange="toggleCursor(this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <span>Размытие Glass Blur:</span>
+                                <input type="range" min="0" max="40" step="5" value="20" onchange="document.documentElement.style.setProperty('--glass-blur', this.value+'px')">
+                            </div>
+                            <div class="setting-item">
+                                <span>Левитация блоков:</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="levitation-toggle" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Wi-Fi -->
+                        <div class="settings-section" id="sec-wifi">
+                            <h4 style="margin-bottom:10px;">Настройки Wi-Fi</h4>
+                            <div class="setting-item">
+                                <span>Включить Wi-Fi:</span>
+                                <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <p style="font-size:11px; opacity:0.7; margin-bottom:8px;">Доступные сети:</p>
+                            <div style="background:rgba(0,0,0,0.05); padding:6px; border-radius:6px; font-size:11px; display:flex; justify-content:space-between; margin-bottom:4px;">
+                                <span>✓ macOS_5G_Home</span><i data-lucide="lock" style="width:12px;"></i>
+                            </div>
+                        </div>
+
+                        <!-- Звук -->
+                        <div class="settings-section" id="sec-sound">
+                            <h4 style="margin-bottom:10px;">Параметры Звука</h4>
+                            <div class="setting-item">
+                                <span>Звуки системы:</span>
+                                <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div class="setting-item">
+                                <span>Громкость:</span>
+                                <input type="range" min="0" max="100" value="80">
+                            </div>
+                        </div>
+
+                        <!-- Приложения -->
+                        <div class="settings-section" id="sec-apps">
+                            <h4 style="margin-bottom:10px;">Управление Приложениями</h4>
+                            <div class="setting-item">
+                                <span>Размер Dock:</span>
+                                <input type="range" min="0.8" max="1.2" step="0.1" value="1" onchange="document.documentElement.style.setProperty('--dock-scale', this.value)">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Темы -->
+        <div class="window" id="win-themes" style="width: 340px; height: 310px; top: 70px; left: 20px;">
+            <div class="window-header">
+                <div class="buttons-pill">
+                    <div class="btn btn-close" onclick="closeApp('win-themes')"></div>
+                    <div class="btn btn-minimize" onclick="closeApp('win-themes')"></div>
+                    <div class="btn btn-maximize" onclick="toggleMaximize('win-themes')"></div>
+                </div>
+                <div class="window-title-pill">Темы и Обои</div>
+            </div>
+            <div class="window-body">
+                <div class="theme-card" onclick="changeTheme('theme-standard')">
+                    <div><strong>1. Неон (Dark Glass)</strong><br><small>Тёмная футуристичная тема</small></div>
+                    <i data-lucide="sparkles"></i>
+                </div>
+                <div class="theme-card" onclick="changeTheme('theme-light')">
+                    <div><strong>2. Светлая (Light Glass)</strong><br><small>Чистый светлый глянец</small></div>
+                    <i data-lucide="sun"></i>
+                </div>
+                <div class="theme-card" onclick="changeTheme('theme-retro')">
+                    <div><strong>3. Ретро</strong><br><small>Aqua Mac OS X Classic</small></div>
+                    <i data-lucide="waves"></i>
+                </div>
+                <div class="theme-card" onclick="changeTheme('theme-metro')">
+                    <div><strong>4. Metro</strong><br><small>Windows Flat Dark Style</small></div>
+                    <i data-lucide="square"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Xcode -->
+        <div class="window" id="win-xcode" style="width: 380px; height: 280px; top: 90px; left: 60px;">
+            <div class="window-header">
+                <div class="buttons-pill">
+                    <div class="btn btn-close" onclick="closeApp('win-xcode')"></div>
+                    <div class="btn btn-minimize" onclick="closeApp('win-xcode')"></div>
+                    <div class="btn btn-maximize" onclick="toggleMaximize('win-xcode')"></div>
+                </div>
+                <div class="window-title-pill">Xcode — Main.swift</div>
+            </div>
+            <div class="window-body">
+                <textarea class="code-editor" spellcheck="false">import UIKit
+
+class ViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        print("Hello, Light & Dark Glass macOS!")
+    }
+}</textarea>
+            </div>
+        </div>
+
+        <!-- 6. Safari -->
+        <div class="window" id="win-safari" style="width: 380px; height: 280px; top: 100px; left: 80px;">
+            <div class="window-header">
+                <div class="buttons-pill">
+                    <div class="btn btn-close" onclick="closeApp('win-safari')"></div>
+                    <div class="btn btn-minimize" onclick="closeApp('win-safari')"></div>
+                    <div class="btn btn-maximize" onclick="toggleMaximize('win-safari')"></div>
+                </div>
+                <div class="window-title-pill">Safari</div>
+            </div>
+            <div class="window-body">
+                <div class="browser-bar">
+                    <input type="text" class="browser-input" value="https://apple.com" id="safari-url">
+                    <button onclick="alert('Загрузка...')" style="padding: 2px 8px; border-radius: 4px; border: none; background: #0078d7; color: white;">Перейти</button>
+                </div>
+                <div style="flex: 1; background: rgba(0,0,0,0.05); border-radius: 6px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px;">
+                    🌐 Добро пожаловать в Safari<br>Безопасный веб-серфинг.
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. iPhone -->
+        <div class="window" id="win-iphone" style="width: 260px; height: 430px; top: 50px; left: 100px;">
+            <div class="window-header">
+                <div class="buttons-pill">
+                    <div class="btn btn-close" onclick="closeApp('win-iphone')"></div>
+                    <div class="btn btn-minimize" onclick="closeApp('win-iphone')"></div>
+                    <div class="btn btn-maximize" onclick="toggleMaximize('win-iphone')"></div>
+                </div>
+                <div class="window-title-pill">iPhone</div>
+            </div>
+            <div class="window-body" style="align-items: center; justify-content: center; background: #111;">
+                <div class="iphone-frame">
+                    <div class="iphone-island"></div>
+                    <div class="iphone-screen">
+                        <div class="app-icon"><i data-lucide="phone"></i></div>
+                        <div class="app-icon"><i data-lucide="message-square"></i></div>
+                        <div class="app-icon"><i data-lucide="camera"></i></div>
+                        <div class="app-icon"><i data-lucide="compass"></i></div>
+                        <div class="app-icon"><i data-lucide="music"></i></div>
+                        <div class="app-icon"><i data-lucide="settings"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. Android -->
+        <div class="window" id="win-android" style="width: 260px; height: 440px; top: 50px; left: 380px;">
+            <div class="window-header">
+                <div class="buttons-pill">
+                    <div class="btn btn-close" onclick="closeApp('win-android')"></div>
+                    <div class="btn btn-minimize" onclick="closeApp('win-android')"></div>
+                    <div class="btn btn-maximize" onclick="toggleMaximize('win-android')"></div>
+                </div>
+                <div class="window-title-pill">Android</div>
+            </div>
+            <div class="window-body" style="align-items: center; justify-content: center; background: #050505;">
+                <div class="android-frame">
+                    <div class="android-header-bar">
+                        <span>13:37</span>
+                        <div><i data-lucide="wifi" style="width:10px;"></i> <i data-lucide="battery" style="width:10px;"></i></div>
+                    </div>
+                    <div class="android-screen">
+                        <div class="app-icon" style="border-radius:50%; background:#ea4335;"><i data-lucide="chrome"></i></div>
+                        <div class="app-icon" style="border-radius:50%; background:#34a853;"><i data-lucide="play"></i></div>
+                        <div class="app-icon" style="border-radius:50%; background:#4285f4;"><i data-lucide="mail"></i></div>
+                        <div class="app-icon" style="border-radius:50%; background:#fbbc05;"><i data-lucide="folder"></i></div>
+                        <div class="app-icon" style="border-radius:50%; background:#a4c639;"><i data-lucide="bot"></i></div>
+                    </div>
+                    <div class="android-nav-bar">
+                        <i data-lucide="chevron-left"></i>
+                        <i data-lucide="circle"></i>
+                        <i data-lucide="square"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. Калькулятор -->
+        <div class="window" id="win-calc" style="width: 240px; height: 260px; top: 110px; left: 120px;">
+            <div class="window-header">
+                <div class="buttons-pill">
+                    <div class="btn btn-close" onclick="closeApp('win-calc')"></div>
+                    <div class="btn btn-minimize" onclick="closeApp('win-calc')"></div>
+                    <div class="btn btn-maximize" onclick="toggleMaximize('win-calc')"></div>
+                </div>
+                <div class="window-title-pill">Калькулятор</div>
+            </div>
+            <div class="window-body">
+                <input type="text" id="calc-screen" value="0" style="width:100%; height:30px; text-align:right; padding:5px; margin-bottom:8px; background:rgba(0,0,0,0.1); border:1px solid rgba(255,255,255,0.2); color:inherit;" readonly>
+                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 4px;">
+                    <button onclick="pressCalc('C')" style="padding: 8px;">C</button>
+                    <button onclick="pressCalc('/')" style="padding: 8px;">/</button>
+                    <button onclick="pressCalc('*')" style="padding: 8px;">*</button>
+                    <button onclick="pressCalc('-')" style="padding: 8px;">-</button>
+                    <button onclick="pressCalc('7')" style="padding: 8px;">7</button>
+                    <button onclick="pressCalc('8')" style="padding: 8px;">8</button>
+                    <button onclick="pressCalc('9')" style="padding: 8px;">9</button>
+                    <button onclick="pressCalc('+')" style="padding: 8px;">+</button>
+                    <button onclick="pressCalc('4')" style="padding: 8px;">4</button>
+                    <button onclick="pressCalc('5')" style="padding: 8px;">5</button>
+                    <button onclick="pressCalc('6')" style="padding: 8px;">6</button>
+                    <button onclick="pressCalc('=')" style="padding: 8px;">=</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. App Store (ДОБАВЛЕНО) -->
+        <div class="window" id="win-store" style="width: 450px; height: 320px; top: 60px; left: 140px;">
+            <div class="window-header">
+                <div class="buttons-pill">
+                    <div class="btn btn-close" onclick="closeApp('win-store')"></div>
+                    <div class="btn btn-minimize" onclick="closeApp('win-store')"></div>
+                    <div class="btn btn-maximize" onclick="toggleMaximize('win-store')"></div>
+                </div>
+                <div class="window-title-pill">App Store</div>
+            </div>
+            <div class="window-body">
+                <div class="store-layout">
+                    <div class="store-sidebar">
+                        <div class="files-sidebar-item"><i data-lucide="sparkles" style="width:12px;"></i> Обзор</div>
+                        <div class="files-sidebar-item"><i data-lucide="gamepad-2" style="width:12px;"></i> Игры</div>
+                        <div class="files-sidebar-item"><i data-lucide="grid" style="width:12px;"></i> Софт</div>
+                    </div>
+                    <div style="flex:1; overflow-y:auto; padding-right:4px;">
+                        <div class="app-card">
+                            <div><strong>Telegram</strong><br><small style="opacity:0.7;">Мессенджер</small></div>
+                            <button class="btn-install" onclick="alert('Загрузка Telegram...')">Загрузить</button>
+                        </div>
+                        <div class="app-card">
+                            <div><strong>VS Code</strong><br><small style="opacity:0.7;">Редактор кода</small></div>
+                            <button class="btn-install" onclick="alert('Загрузка VS Code...')">Загрузить</button>
+                        </div>
+                        <div class="app-card">
+                            <div><strong>Spotify</strong><br><small style="opacity:0.7;">Музыка и подкасты</small></div>
+                            <button class="btn-install" onclick="alert('Загрузка Spotify...')">Загрузить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 11. Музыка (ДОБАВЛЕНО) -->
+        <div class="window" id="win-music" style="width: 360px; height: 260px; top: 120px; left: 160px;">
+            <div class="window-header">
+                <div class="buttons-pill">
+                    <div class="btn btn-close" onclick="closeApp('win-music')"></div>
+                    <div class="btn btn-minimize" onclick="closeApp('win-music')"></div>
+                    <div class="btn btn-maximize" onclick="toggleMaximize('win-music')"></div>
+                </div>
+                <div class="window-title-pill">Музыка</div>
+            </div>
+            <div class="window-body" style="align-items:center; justify-content:center; text-align:center; gap:12px;">
+                <div style="width:80px; height:80px; background:linear-gradient(135deg, #ff007f, #00f3ff); border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    <i data-lucide="disc" style="width:40px; height:40px; color:#fff;"></i>
+                </div>
+                <div>
+                    <strong>Lo-Fi Beats Radio</strong>
+                    <p style="font-size:11px; opacity:0.7; margin-top:2px;">Chill & Relax Tracks</p>
+                </div>
+                <div style="display:flex; gap:15px; align-items:center; margin-top:4px;">
+                    <i data-lucide="skip-back" style="cursor:pointer; width:18px;"></i>
+                    <div style="width:36px; height:36px; background:#0078d7; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="alert('Воспроизведение...')">
+                        <i data-lucide="play" style="width:16px; fill:#fff; color:#fff;"></i>
+                    </div>
+                    <i data-lucide="skip-forward" style="cursor:pointer; width:18px;"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Dock -->
+    <div class="dock-container">
+        <div class="dock">
+            <div class="dock-item" onclick="openApp('win-welcome')" title="Главная"><i data-lucide="home"></i></div>
+            <div class="dock-item" onclick="openApp('win-files')" title="Файлы"><i data-lucide="folder"></i></div>
+            <div class="dock-item" onclick="openApp('win-store')" title="App Store"><i data-lucide="shopping-bag"></i></div>
+            <div class="dock-item" onclick="openApp('win-music')" title="Музыка"><i data-lucide="music"></i></div>
+            <div class="dock-item" onclick="openApp('win-themes')" title="Темы"><i data-lucide="palette"></i></div>
+            <div class="dock-item" onclick="openApp('win-settings')" title="Настройки"><i data-lucide="settings"></i></div>
+            <div class="dock-item" onclick="openApp('win-safari')" title="Safari"><i data-lucide="compass"></i></div>
+            <div class="dock-item" onclick="openApp('win-xcode')" title="Xcode"><i data-lucide="code"></i></div>
+            <div class="dock-item" onclick="openApp('win-iphone')" title="iPhone"><i data-lucide="smartphone"></i></div>
+            <div class="dock-item" onclick="openApp('win-android')" title="Android"><i data-lucide="bot"></i></div>
+            <div class="dock-item" onclick="openApp('win-calc')" title="Калькулятор"><i data-lucide="calculator"></i></div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // КОНТЕКСТНОЕ МЕНЮ
+        const contextMenu = document.getElementById('context-menu');
+        
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            contextMenu.style.display = 'block';
+            
+            // Расчет позиции контекстного меню
+            let x = e.clientX;
+            let y = e.clientY;
+            if (x + 180 > window.innerWidth) x = window.innerWidth - 190;
+            if (y + 160 > window.innerHeight) y = window.innerHeight - 170;
+            
+            contextMenu.style.left = x + 'px';
+            contextMenu.style.top = y + 'px';
+        });
+
+        document.addEventListener('click', () => {
+            contextMenu.style.display = 'none';
+        });
+
+        // Сенсорный курсор
+        const touchCursor = document.getElementById('touch-cursor');
+        document.addEventListener('mousemove', (e) => {
+            touchCursor.style.left = e.clientX + 'px';
+            touchCursor.style.top = e.clientY + 'px';
+        });
+        document.addEventListener('touchmove', (e) => {
+            if(e.touches.length > 0) {
+                touchCursor.style.left = e.touches[0].clientX + 'px';
+                touchCursor.style.top = e.touches[0].clientY + 'px';
+            }
+        });
+
+        function toggleCursor(show) {
+            touchCursor.style.display = show ? 'block' : 'none';
+        }
+
+        function changeTheme(themeName) {
+            document.body.classList.remove('theme-standard', 'theme-light', 'theme-retro', 'theme-metro');
+            document.body.classList.add(themeName);
+            
+            const toggle = document.getElementById('light-theme-toggle');
+            if (toggle) toggle.checked = (themeName === 'theme-light');
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        let topZ = 100;
+        function openApp(id) {
+            const win = document.getElementById(id);
+            if(win) {
+                win.style.display = 'flex';
+                win.style.zIndex = ++topZ;
+            }
+        }
+        function closeApp(id) {
+            const win = document.getElementById(id);
+            if(win) win.style.display = 'none';
+        }
+
+        function closeAllApps() {
+            document.querySelectorAll('.window').forEach(w => w.style.display = 'none');
+        }
+
+        function toggleMaximize(id) {
+            const win = document.getElementById(id);
+            if(win) {
+                win.classList.toggle('maximized');
+            }
+        }
+
+        // Переключение разделов настроек
+        function switchSettingsSection(sectionId, el) {
+            document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+            
+            el.classList.add('active');
+            document.getElementById('sec-' + sectionId).classList.add('active');
+        }
+
+        let calcVal = '0';
+        function pressCalc(val) {
+            const screen = document.getElementById('calc-screen');
+            if (val === 'C') calcVal = '0';
+            else if (val === '=') {
+                try { calcVal = eval(calcVal).toString(); } catch { calcVal = 'Ошибка'; }
+            } else {
+                if (calcVal === '0' || calcVal === 'Ошибка') calcVal = val;
+                else calcVal += val;
+            }
+            screen.value = calcVal;
+        }
+
+        // Левитация и перетаскивание
+        document.querySelectorAll('.window').forEach(win => {
+            const header = win.querySelector('.window-header');
+            const buttonsPill = win.querySelector('.buttons-pill');
+            const titlePill = win.querySelector('.window-title-pill');
+            
+            win.addEventListener('mousemove', (e) => {
+                const toggle = document.getElementById('levitation-toggle');
+                if(toggle && !toggle.checked) return;
+                
+                const rect = win.getBoundingClientRect();
+                const x = e.clientX - rect.left - (rect.width / 2);
+                const y = e.clientY - rect.top - (rect.height / 2);
+                
+                if (buttonsPill) buttonsPill.style.transform = `translate(${x * 0.05}px, ${y * 0.05}px)`;
+                if (titlePill) titlePill.style.transform = `translate(calc(-50% + ${x * 0.025}px), ${y * 0.025}px)`;
+            });
+
+            win.addEventListener('mouseleave', () => {
+                if (buttonsPill) buttonsPill.style.transform = 'translate(0, 0)';
+                if (titlePill) titlePill.style.transform = 'translate(-50%, 0)';
+            });
+
+            const startMove = (e) => {
+                if(e.target.classList.contains('btn')) return;
+                win.style.zIndex = ++topZ;
+                let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                let shiftX = clientX - win.offsetLeft;
+                let shiftY = clientY - win.offsetTop;
+
+                function moveAt(pageX, pageY) {
+                    if (win.classList.contains('maximized')) return;
+                    win.style.left = Math.max(0, Math.min(window.innerWidth - win.offsetWidth, pageX - shiftX)) + 'px';
+                    win.style.top = Math.max(28, Math.min(window.innerHeight - win.offsetHeight, pageY - shiftY)) + 'px';
+                }
+
+                function onMove(e) {
+                    let cx = e.clientX || (e.touches && e.touches[0].clientX);
+                    let cy = e.clientY || (e.touches && e.touches[0].clientY);
+                    moveAt(cx, cy);
+                }
+
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('touchmove', onMove);
+
+                document.addEventListener('mouseup', () => {
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('touchmove', onMove);
+                }, { once: true });
+                document.addEventListener('touchend', () => {
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('touchmove', onMove);
+                }, { once: true });
+            };
+
+            header.addEventListener('mousedown', startMove);
+            header.addEventListener('touchstart', startMove);
+        });
+    </script>
+</body>
+</html>
