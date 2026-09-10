@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlueBox Store</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                 "Segoe UI", sans-serif;
+    color: white;
+
+    background:
+        radial-gradient(circle at 10% 10%, #2463ff 0, transparent 35%),
+        radial-gradient(circle at 90% 20%, #8b35ff 0, transparent 35%),
+        radial-gradient(circle at 50% 100%, #00d5ff 0, transparent 40%),
+        #090b13;
+
+    background-attachment: fixed;
+}
+
+/* LIQUID GLASS */
+
+.glass {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.20);
+
+    box-shadow:
+        0 18px 50px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.18);
+
+    backdrop-filter: blur(30px) saturate(160%);
+    -webkit-backdrop-filter: blur(30px) saturate(160%);
+}
+
+/* HEADER */
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+
+    padding: 14px;
+
+    background: rgba(15,17,27,.55);
+    border-bottom: 1px solid rgba(255,255,255,.12);
+
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+}
+
+.topbar {
+    max-width: 750px;
+    margin: auto;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* BLUEBOX ИКОНКА */
+
+.logo {
+    width: 55px;
+    height: 55px;
+
+    flex-shrink: 0;
+
+    border-radius: 18px;
+
+    object-fit: cover;
+
+    box-shadow:
+        0 8px 30px rgba(0,120,255,.40);
+}
+
+.title {
+    flex: 1;
+}
+
+.title h1 {
+    margin: 0;
+    font-size: 21px;
+}
+
+.title p {
+    margin: 3px 0 0;
+
+    font-size: 13px;
+
+    color: rgba(255,255,255,.65);
+}
+
+.menu {
+    width: 44px;
+    height: 44px;
+
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.12);
+
+    color: white;
+
+    font-size: 24px;
+
+    cursor: pointer;
+}
+
+/* SEARCH */
+
+.search {
+    display: block;
+
+    width: 100%;
+    max-width: 750px;
+
+    margin: 14px auto 0;
+
+    padding: 15px 18px;
+
+    outline: none;
+
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 20px;
+
+    background: rgba(255,255,255,.11);
+
+    color: white;
+
+    font-size: 16px;
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.search::placeholder {
+    color: rgba(255,255,255,.55);
+}
+
+/* MAIN */
+
+main {
+    max-width: 750px;
+
+    margin: auto;
+
+    padding: 22px 16px 110px;
+}
+
+/* HERO */
+
+.hero {
+    padding: 27px;
+
+    border-radius: 30px;
+
+    margin-bottom: 22px;
+}
+
+.hero h2 {
+    margin: 0 0 8px;
+
+    font-size: 30px;
+}
+
+.hero p {
+    margin: 0;
+
+    color: rgba(255,255,255,.72);
+
+    font-size: 15px;
+}
+
+/* INSTALL IPA */
+
+.install-box {
+    padding: 19px;
+
+    border-radius: 26px;
+
+    margin-bottom: 28px;
+}
+
+.install-box h3 {
+    margin: 0 0 6px;
+
+    font-size: 19px;
+}
+
+.install-box p {
+    margin: 0 0 15px;
+
+    color: rgba(255,255,255,.62);
+
+    font-size: 13px;
+}
+
+.install-button {
+    width: 100%;
+
+    padding: 14px;
+
+    border: 1px solid rgba(255,255,255,.22);
+
+    border-radius: 18px;
+
+    background: rgba(255,255,255,.19);
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .15s;
+}
+
+.install-button:active {
+    transform: scale(.97);
+}
+
+/* SECTION */
+
+.section-title {
+    margin: 25px 4px 14px;
+
+    font-size: 21px;
+}
+
+/* APP */
+
+.app {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 15px;
+
+    margin-bottom: 12px;
+
+    border-radius: 25px;
+
+    transition: transform .15s;
+}
+
+.app:active {
+    transform: scale(.98);
+}
+
+.app-icon {
+    width: 64px;
+    height: 64px;
+
+    flex-shrink: 0;
+
+    border-radius: 18px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 29px;
+
+    background: rgba(255,255,255,.13);
+
+    border: 1px solid rgba(255,255,255,.16);
+}
+
+.app-info {
+    flex: 1;
+
+    min-width: 0;
+}
+
+.app-name {
+    font-size: 18px;
+
+    font-weight: 750;
+}
+
+.app-description {
+    margin-top: 4px;
+
+    color: rgba(255,255,255,.57);
+
+    font-size: 13px;
+}
+
+.download {
+    padding: 11px 14px;
+
+    border-radius: 15px;
+
+    background: rgba(255,255,255,.18);
+
+    border: 1px solid rgba(255,255,255,.20);
+
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+    transition: .15s;
+}
+
+.download:active {
+    transform: scale(.94);
+}
+
+/* EMPTY */
+
+.empty {
+    display: none;
+
+    padding: 40px 10px;
+
+    text-align: center;
+
+    color: rgba(255,255,255,.6);
+}
+
+/* BOTTOM NAV */
+
+.bottom {
+    position: fixed;
+
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+
+    z-index: 100;
+
+    max-width: 720px;
+
+    margin: auto;
+
+    padding: 9px;
+
+    display: flex;
+
+    justify-content: space-around;
+
+    border-radius: 25px;
+
+    background: rgba(25,27,40,.65);
+
+    border: 1px solid rgba(255,255,255,.18);
+
+    backdrop-filter: blur(30px);
+
+    -webkit-backdrop-filter: blur(30px);
+
+    box-shadow:
+        0 12px 40px rgba(0,0,0,.35);
+}
+
+.nav {
+    flex: 1;
+
+    border: none;
+
+    background: transparent;
+
+    color: rgba(255,255,255,.58);
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    cursor: pointer;
+}
+
+.nav span {
+    display: block;
+
+    margin-bottom: 2px;
+
+    font-size: 22px;
+}
+
+.nav.active {
+    color: white;
+}
+
+/* MOBILE */
+
+@media(max-width:430px) {
+
+    .app {
+        gap: 10px;
+    }
+
+    .app-icon {
+        width: 58px;
+        height: 58px;
+    }
+
+    .download {
+        padding: 10px 11px;
+    }
+
+}
+</style>
+</head>
+
+
+<body>
+
+<header>
+
+    <div class="topbar">
+
+        <!-- ТВОЯ ИКОНКА -->
+        <img
+            class="logo"
+            src="000000002f5882109307f6dc3e89bc2d.png"
+            alt="BlueBox">
+
+        <div class="title">
+
+            <h1>
+                BlueBox Store
+            </h1>
+
+            <p>
+                IPA приложения
+            </p>
+
+        </div>
+
+        <button
+            class="menu"
+            onclick="about()">
+
+            ⋮
+
+        </button>
+
+    </div>
+
+
+    <input
+        id="search"
+        class="search"
+        type="search"
+        placeholder="Поиск IPA-приложений..."
+        oninput="searchApps()">
+
+</header>
+
+
+<main>
+
+    <!-- HERO -->
+
+    <section class="hero glass">
+
+        <h2>
+            BlueBox Store
+        </h2>
+
+        <p>
+            Найди приложение и скачай IPA-файл.
+        </p>
+
+    </section>
+
+
+    <!-- УСТАНОВИТЬ IPA -->
+
+    <section class="install-box glass">
+
+        <h3>
+            📦 Установить IPA
+        </h3>
+
+        <p>
+            Выбери IPA-файл с устройства.
+        </p>
+
+        <button
+            class="install-button"
+            onclick="chooseIPA()">
+
+            ➕ Выбрать IPA
+
+        </button>
+
+        <input
+            id="ipaInput"
+            type="file"
+            accept=".ipa"
+            hidden
+            onchange="ipaSelected(this)">
+
+    </section>
+
+
+    <!-- ПОПУЛЯРНОЕ -->
+
+    <h2 class="section-title">
+        Популярное
+    </h2>
+
+
+    <div id="apps">
+
+
+        <!-- YOUTUBE -->
+
+        <article
+            class="app glass"
+            data-name="youtube">
+
+            <div class="app-icon">
+                ▶️
+            </div>
+
+            <div class="app-info">
+
+                <div class="app-name">
+                    YouTube
+                </div>
+
+                <div class="app-description">
+                    Видео • IPA
+                </div>
+
+            </div>
+
+            <a
+                class="download"
+                href="files/youtube.ipa"
+                download>
+
+                Скачать
+
+            </a>
+
+        </article>
+
+
+        <!-- MINECRAFT -->
+
+        <article
+            class="app glass"
+            data-name="minecraft">
+
+            <div class="app-icon">
+                ⛏️
+            </div>
+
+            <div class="app-info">
+
+                <div class="app-name">
+                    Minecraft
+                </div>
+
+                <div class="app-description">
+                    Игры • IPA
+                </div>
+
+            </div>
+
+            <a
+                class="download"
+                href="files/minecraft.ipa"
+                download>
+
+                Скачать
+
+            </a>
+
+        </article>
+
+
+        <!-- OLD OS -->
+
+        <article
+            class="app glass"
+            data-name="oldos">
+
+            <div class="app-icon">
+                📱
+            </div>
+
+            <div class="app-info">
+
+                <div class="app-name">
+                    Old OS
+                </div>
+
+                <div class="app-description">
+                    Утилиты • IPA
+                </div>
+
+            </div>
+
+            <a
+                class="download"
+                href="files/oldos.ipa"
+                download>
+
+                Скачать
+
+            </a>
+
+        </article>
+
+
+    </div>
+
+
+    <div
+        id="empty"
+        class="empty">
+
+        Ничего не найдено 😶
+
+    </div>
+
+</main>
+
+
+<!-- НИЖНЯЯ НАВИГАЦИЯ -->
+
+<nav class="bottom">
+
+    <button
+        class="nav active"
+        onclick="goHome()">
+
+        <span>⌂</span>
+
+        Главная
+
+    </button>
+
+
+    <button
+        class="nav"
+        onclick="focusSearch()">
+
+        <span>⌕</span>
+
+        Поиск
+
+    </button>
+
+
+    <button
+        class="nav"
+        onclick="about()">
+
+        <span>ⓘ</span>
+
+        О BlueBox
+
+    </button>
+
+</nav>
+
+
+<script>
+
+/* ВЫБОР IPA */
+
+function chooseIPA() {
+
+    document
+        .getElementById("ipaInput")
+        .click();
+
+}
+
+
+/* IPA ВЫБРАН */
+
+function ipaSelected(input) {
+
+    if (!input.files.length)
+        return;
+
+    const file = input.files[0];
+
+    const size =
+        (file.size / 1024 / 1024)
+        .toFixed(2);
+
+    alert(
+        "IPA выбран! 📦\n\n" +
+        file.name +
+        "\n\nРазмер: " +
+        size +
+        " MB\n\n" +
+        "BlueBox получил файл."
+    );
+
+}
+
+
+/* ПОИСК */
+
+function searchApps() {
+
+    const query =
+        document
+        .getElementById("search")
+        .value
+        .toLowerCase()
+        .trim();
+
+    const apps =
+        document.querySelectorAll(".app");
+
+    let visible = 0;
+
+    apps.forEach(app => {
+
+        const name =
+            app.dataset.name
+            .toLowerCase();
+
+        if (name.includes(query)) {
+
+            app.style.display = "flex";
+
+            visible++;
+
+        } else {
+
+            app.style.display = "none";
+
+        }
+
+    });
+
+
+    document
+        .getElementById("empty")
+        .style.display =
+        visible === 0
+        ? "block"
+        : "none";
+
+}
+
+
+/* ПОИСК СНИЗУ */
+
+function focusSearch() {
+
+    document
+        .getElementById("search")
+        .focus();
+
+}
+
+
+/* ГЛАВНАЯ */
+
+function goHome() {
+
+    window.scrollTo({
+
+        top: 0,
+
+        behavior: "smooth"
+
+    });
+
+}
+
+
+/* О BLUEBOX */
+
+function about() {
+
+    alert(
+        "BlueBox Store\n\n" +
+        "IPA Store\n" +
+        "Версия: 1.0"
+    );
+
+}
+
+</script>
+
+</body>
+</html>
